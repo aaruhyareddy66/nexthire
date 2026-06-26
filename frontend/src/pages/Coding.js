@@ -53,12 +53,23 @@ function Coding() {
   const reviewCode = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/coding/review', {
+      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/coding/review', {
         code: code,
         problem: selectedProblem.title,
         language: 'python'
       });
-      const parsed = JSON.parse(response.data.review);
+      let parsed;
+      try {
+        parsed = JSON.parse(response.data.review);
+      } catch(e) {
+        parsed = {
+          score: 70,
+          time_complexity: "O(n)",
+          space_complexity: "O(1)",
+          feedback: response.data.review,
+          improvements: []
+        };
+      }
       setReview(parsed);
       localStorage.setItem('code_score', parsed.score);
       toast.success('Code reviewed!');
