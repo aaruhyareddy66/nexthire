@@ -1,66 +1,74 @@
-\# NextHire
+# NextHire
 
+A full stack AI-powered placement preparation platform. Upload your resume, go through an AI interview, solve coding problems, and get a final scorecard — all in one place.
 
+## Live Demo
 
-A placement preparation platform where you can upload your resume, go through an AI interview, solve coding problems, and get a final score — all in one place.
+https://nexthire-sooty.vercel.app
 
+## What I Built
 
+I built this project to help students prepare for placements. It covers the full interview process — resume screening, HR + technical interview, coding round, and a final score.
 
-\## What it does
+## Features
 
+- Resume upload and AI analysis with score out of 100
+- AI interviewer that reads your resume and asks relevant questions
+- Coding editor with live Python execution in the browser
+- AI code review with time and space complexity analysis
+- Final scorecard with weighted breakdown of all rounds
 
+## Tech Stack
 
-\- Upload your resume and get it analyzed
+**Frontend**
+- React.js
+- Monaco Editor (VS Code editor in browser)
+- Recharts (scorecard charts)
+- Tailwind CSS
 
-\- Practice with an AI interviewer
+**Backend**
+- FastAPI (Python)
+- Groq API with LLaMA 3.3 70B
+- PyPDF2 (resume parsing)
+- spaCy (skill extraction)
 
-\- Solve coding problems in the browser
+**Deployment**
+- Vercel (frontend)
+- Render (backend)
+- GitHub (version control)
 
-\- Get a final scorecard with your overall score
+## How to Run Locally
 
-
-
-\## Tech Stack
-
-
-
-\- React.js — frontend
-
-\- FastAPI — backend
-
-\- Groq (LLaMA 3) — AI interviewer
-
-\- Judge0 — code execution
-
-\- Supabase — database
-
-
-
-\## How to run locally
-
-
-
-\### Backend
+### Backend
 
 cd backend
-
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
-
 uvicorn app.main:app --reload
 
-
-
-\### Frontend
+### Frontend
 
 cd frontend
-
+npm install
 npm start
 
+### Environment Variables
 
+Create a `.env` file in the backend folder:
 
-\## Author
+GROQ_API_KEY=your_groq_api_key_here
 
+## Scorecard Breakdown
 
+| Round | Weight |
+|-------|--------|
+| Resume Score | 20% |
+| Communication | 20% |
+| Technical Answers | 30% |
+| Code Quality | 30% |
 
-aaruhyareddy66
+## Author
 
+Aaruhya Reddy
+GitHub: https://github.com/aaruhyareddy66
