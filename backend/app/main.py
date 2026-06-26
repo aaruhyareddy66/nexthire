@@ -27,4 +27,5 @@ app.include_router(scorecard.router, prefix="/scorecard", tags=["scorecard"])
 
 @app.get("/")
 def home():
+    
     return {"message": "nexthire api is running"}

@@ -12,7 +12,7 @@ import './App.css';
 function App() {
   React.useEffect(() => {
     const keepAlive = setInterval(() => {
-      fetch('https://nexthire-backend-1byv.onrender.com/')
+      fetch('https://nexthire-production-092e.up.railway.app/')
         .catch(() => {});
     }, 10 * 60 * 1000);
     return () => clearInterval(keepAlive);

@@ -12,7 +12,7 @@ function Coding() {
   const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
-    axios.get('https://nexthire-backend-1byv.onrender.com/coding/problems')
+    axios.get('https://nexthire-production-092e.up.railway.app/coding/problems')
       .then(res => setProblems(res.data.problems))
       .catch(() => toast.error('Failed to load problems'));
   }, []);
@@ -53,7 +53,7 @@ function Coding() {
   const reviewCode = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/coding/review', {
+      const response = await axios.post('https://nexthire-production-092e.up.railway.app/coding/review', {
         code: code,
         problem: selectedProblem.title,
         language: 'python'

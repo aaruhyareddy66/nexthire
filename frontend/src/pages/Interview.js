@@ -23,7 +23,7 @@ function Interview() {
   const startInterview = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/interview/start', {
+      const response = await axios.post('https://nexthire-production-092e.up.railway.app/interview/start', {
         message: 'Hello, I am ready for the interview.',
         history: [],
         resume_summary: resumeSummary
@@ -42,7 +42,7 @@ function Interview() {
     setInput('');
     setLoading(true);
     try {
-      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/interview/start', {
+      const response = await axios.post('https://nexthire-production-092e.up.railway.app/interview/start', {
         message: input,
         history: newMessages,
         resume_summary: resumeSummary
@@ -57,7 +57,7 @@ function Interview() {
   const finishInterview = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/interview/evaluate', {
+      const response = await axios.post('https://nexthire-production-092e.up.railway.app/interview/evaluate', {
         message: '',
         history: messages
       }, { timeout: 30000 });
