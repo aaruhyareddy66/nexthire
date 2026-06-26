@@ -1,3 +1,8 @@
+# version 2.0 cors fix
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from app import resume, interview, coding, scorecard
+...
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app import resume, interview, coding, scorecard
