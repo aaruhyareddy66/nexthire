@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File
 from groq import Groq
 import PyPDF2
-import spacy
+
 import io
 import os
 from dotenv import load_dotenv
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 router = APIRouter()
-nlp = spacy.load("en_core_web_sm")
+
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def extract_text_from_pdf(file_bytes):
