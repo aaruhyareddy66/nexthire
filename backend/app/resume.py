@@ -20,7 +20,6 @@ def extract_text_from_pdf(file_bytes):
     return text
 
 def extract_skills(text):
-    doc = nlp(text)
     skills = []
     skill_keywords = ["python", "javascript", "react", "node", "sql", "machine learning",
                       "deep learning", "fastapi", "django", "flask", "java", "c++", "git",
@@ -31,12 +30,22 @@ def extract_skills(text):
             skills.append(skill)
     return skills
 
+def clean_json(text):
+    clean = text.strip()
+    if clean.startswith("```"):
+        parts = clean.split("```")
+        if len(parts) >= 2:
+            clean = parts[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+    return clean.strip()
+
 @router.post("/analyze")
 async def analyze_resume(file: UploadFile = File(...)):
     file_bytes = await file.read()
     text = extract_text_from_pdf(file_bytes)
     skills = extract_skills(text)
-    
+
     prompt = f"""
     Analyze this resume and give a score out of 100.
     Return a JSON with these fields:
@@ -45,23 +54,24 @@ async def analyze_resume(file: UploadFile = File(...)):
     - weaknesses (list of 3 things to improve)
     - skills_found (list of skills you found)
     - summary (2 line summary)
-    
+
     Resume text:
     {text[:3000]}
-    
-    Return only valid JSON, nothing else.
+
+    Return only valid JSON, nothing else. No markdown, no backticks.
     """
-    
+
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.3,
     )
-    
+
     result = response.choices[0].message.content
-    
+    clean = clean_json(result)
+
     return {
-        "raw_analysis": result,
+        "raw_analysis": clean,
         "skills_found": skills,
         "text_extracted": text[:500]
     }

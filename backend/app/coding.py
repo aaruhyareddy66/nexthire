@@ -3,16 +3,12 @@ from pydantic import BaseModel
 from groq import Groq
 import httpx
 import os
-import base64
 from dotenv import load_dotenv
 
 load_dotenv()
 
 router = APIRouter()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
-JUDGE0_URL = "https://judge0-ce.p.rapidapi.com"
 
 class CodeSubmission(BaseModel):
     code: str
@@ -23,6 +19,16 @@ class CodeReview(BaseModel):
     code: str
     problem: str
     language: str
+
+def clean_json(text):
+    clean = text.strip()
+    if clean.startswith("```"):
+        parts = clean.split("```")
+        if len(parts) >= 2:
+            clean = parts[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+    return clean.strip()
 
 @router.get("/problems")
 async def get_problems():
@@ -40,7 +46,7 @@ async def get_problems():
                 "id": 2,
                 "title": "Reverse a String",
                 "difficulty": "Easy",
-                "description": "Write a function that reverses a string. The input string is given as an array of characters.",
+                "description": "Write a function that reverses a string.",
                 "examples": "Input: s = 'hello' Output: 'olleh'",
                 "language_id": 71
             },
@@ -57,61 +63,67 @@ async def get_problems():
 
 @router.post("/submit")
 async def submit_code(data: CodeSubmission):
-    headers = {
-        "content-type": "application/json",
-        "X-RapidAPI-Key": JUDGE0_API_KEY,
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
-    }
-    
-    encoded_code = base64.b64encode(data.code.encode()).decode()
-    
-    async with httpx.AsyncClient() as client_http:
-        submit_response = await client_http.post(
-            f"{JUDGE0_URL}/submissions?base64_encoded=true&wait=true",
-            json={"source_code": encoded_code, "language_id": data.language_id},
-            headers=headers
-        )
-        result = submit_response.json()
-    
-    output = ""
-    if result.get("stdout"):
-        output = base64.b64decode(result["stdout"]).decode()
-    elif result.get("stderr"):
-        output = base64.b64decode(result["stderr"]).decode()
-    elif result.get("compile_output"):
-        output = base64.b64decode(result["compile_output"]).decode()
-    
-    return {
-        "output": output,
-        "status": result.get("status", {}).get("description", "Unknown"),
-        "time": result.get("time"),
-        "memory": result.get("memory")
-    }
+    try:
+        async with httpx.AsyncClient(timeout=30) as client_http:
+            response = await client_http.post(
+                "https://glot.io/api/run/python/latest",
+                headers={
+                    "Content-type": "application/json",
+                },
+                json={
+                    "files": [
+                        {
+                            "name": "main.py",
+                            "content": data.code
+                        }
+                    ]
+                }
+            )
+            result = response.json()
+
+        stdout = result.get("stdout", "")
+        stderr = result.get("stderr", "")
+        output = stdout if stdout else stderr if stderr else str(result)
+
+        return {
+            "output": output,
+            "status": "Accepted",
+            "time": None,
+            "memory": None
+        }
+    except Exception as e:
+        return {"output": f"Error: {str(e)}", "status": "Error"}
 
 @router.post("/review")
 async def review_code(data: CodeReview):
-    prompt = f"""
-    Review this code and give a score out of 100.
-    Return JSON with:
-    - score (number out of 100)
-    - time_complexity (e.g. O(n))
-    - space_complexity (e.g. O(1))
-    - feedback (2-3 lines)
-    - improvements (list of 2 suggestions)
-    - is_correct (true or false)
-    
-    Problem: {data.problem}
-    Language: {data.language}
-    Code:
-    {data.code}
-    
-    Return only valid JSON, nothing else.
-    """
-    
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
-    )
-    
-    return {"review": response.choices[0].message.content}
+    try:
+        prompt = f"""
+        Review this code and give a score out of 100.
+        Return JSON with:
+        - score (number out of 100)
+        - time_complexity (e.g. O(n))
+        - space_complexity (e.g. O(1))
+        - feedback (2-3 lines)
+        - improvements (list of 2 suggestions)
+        - is_correct (true or false)
+
+        Problem: {data.problem}
+        Language: {data.language}
+        Code:
+        {data.code}
+
+        Return only valid JSON, no markdown, no backticks.
+        """
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+        )
+
+        result = response.choices[0].message.content
+        clean = clean_json(result)
+
+        return {"review": clean}
+    except Exception as e:
+        return {"review": f"Error: {str(e)}"}
