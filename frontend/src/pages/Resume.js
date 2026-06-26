@@ -20,7 +20,7 @@ function Resume() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const response = await axios.post('https://nexthire-production-092e.up.railway.app/resume/analyze', formData);
+      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/resume/analyze', formData);
       const parsed = JSON.parse(response.data.raw_analysis);
       setResult({ ...parsed, skills_found: response.data.skills_found });
       localStorage.setItem('resume_score', parsed.score);

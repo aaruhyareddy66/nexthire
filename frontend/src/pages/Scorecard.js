@@ -15,7 +15,7 @@ function Scorecard() {
 
     setLoading(true);
     try {
-      const response = await axios.post('https://nexthire-production-092e.up.railway.app/scorecard/generate', {
+      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/scorecard/generate', {
         resume_score: resumeScore,
         communication_score: communicationScore,
         technical_score: technicalScore,
