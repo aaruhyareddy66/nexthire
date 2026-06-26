@@ -38,9 +38,10 @@ async def start_interview(data: Message):
     messages.append({"role": "user", "content": data.message})
     
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-        temperature=0.7,
+    model="llama-3.3-70b-versatile",
+    messages=messages,
+    temperature=0.7,
+    max_tokens=500,
     )
     
     return {

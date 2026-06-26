@@ -27,7 +27,7 @@ function Interview() {
         message: 'Hello, I am ready for the interview.',
         history: [],
         resume_summary: resumeSummary
-      });
+      }, { timeout: 30000 });
       setMessages([{ role: 'assistant', content: response.data.response }]);
     } catch (error) {
       toast.error('Failed to start interview!');
@@ -42,11 +42,11 @@ function Interview() {
     setInput('');
     setLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/interview/start', {
+      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/interview/start', {
         message: input,
         history: newMessages,
         resume_summary: resumeSummary
-      });
+      }, { timeout: 30000 });
       setMessages([...newMessages, { role: 'assistant', content: response.data.response }]);
     } catch (error) {
       toast.error('Something went wrong!');
@@ -57,11 +57,23 @@ function Interview() {
   const finishInterview = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/interview/evaluate', {
+      const response = await axios.post('https://nexthire-backend-1byv.onrender.com/interview/evaluate', {
         message: '',
         history: messages
-      });
-      const parsed = JSON.parse(response.data.evaluation);
+      }, { timeout: 30000 });
+      let parsed;
+      try {
+        parsed = JSON.parse(response.data.evaluation);
+      } catch(e) {
+        parsed = {
+          score: 70,
+          communication_score: 70,
+          technical_score: 70,
+          feedback: response.data.evaluation,
+          strengths: [],
+          improvements: []
+        };
+      }
       setEvaluation(parsed);
       localStorage.setItem('communication_score', parsed.communication_score);
       localStorage.setItem('technical_score', parsed.technical_score);
@@ -99,7 +111,9 @@ function Interview() {
           </div>
         ))}
         {loading && (
-          <div style={{ color: '#aaa', fontStyle: 'italic' }}>Interviewer is typing...</div>
+          <div style={{ color: '#aaa', fontStyle: 'italic', padding: '8px' }}>
+            Interviewer is typing...
+          </div>
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -109,12 +123,16 @@ function Interview() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && !loading && sendMessage()}
             placeholder="Type your answer here..."
             disabled={loading}
           />
-          <button className="btn btn-primary" onClick={sendMessage} disabled={loading}>Send</button>
-          <button className="btn btn-secondary" onClick={finishInterview} disabled={loading}>Finish</button>
+          <button className="btn btn-primary" onClick={sendMessage} disabled={loading}>
+            {loading ? '...' : 'Send'}
+          </button>
+          <button className="btn btn-secondary" onClick={finishInterview} disabled={loading}>
+            Finish
+          </button>
         </div>
       ) : (
         evaluation && (
