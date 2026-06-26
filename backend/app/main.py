@@ -6,16 +6,12 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://nexthire-sooty.vercel.app",
-        "https://nexthire-git-main-self27.vercel.app",
-        "https://nexthire-f22gtn7gk-self27.vercel.app"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.include_router(resume.router, prefix="/resume", tags=["resume"])
 app.include_router(interview.router, prefix="/interview", tags=["interview"])
