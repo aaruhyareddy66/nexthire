@@ -31,7 +31,7 @@ function Coding() {
       function outfun(text) { outf += text; }
       function builtinRead(x) {
         if (window.Sk.builtinFiles === undefined || window.Sk.builtinFiles["files"][x] === undefined)
-          throw "File not found: '" + x + "'";
+          throw new Error("File not found: '" + x + "'");
         return window.Sk.builtinFiles["files"][x];
       }
       window.Sk.configure({ output: outfun, read: builtinRead });
